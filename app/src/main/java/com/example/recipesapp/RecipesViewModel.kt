@@ -3,19 +3,21 @@ package com.example.recipesapp
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.Retrofit
 
 class RecipesViewModel(private val stateHandle: SavedStateHandle): ViewModel() {
 
     private var restInterface: RecipesApiService
-
     val state = mutableStateOf(emptyList<Recipe>())
-
-    private lateinit var recipesCall: Call<List<Recipe>>
+    private val errorHandler = CoroutineExceptionHandler{ _, exception ->
+        exception.printStackTrace()
+    }
 
     init {
         val retrofit: Retrofit = Retrofit.Builder()
@@ -29,26 +31,17 @@ class RecipesViewModel(private val stateHandle: SavedStateHandle): ViewModel() {
         getRecipes()
     }
 
+    private suspend fun getRemoteRecipes(): List<Recipe> {
+        return withContext(Dispatchers.IO) {
+            restInterface.getRecipes()
+        }
+    }
+
     private fun getRecipes() {
-        recipesCall = restInterface.getRecipes()
-        recipesCall.enqueue(
-            object : Callback<List<Recipe>> {
-                override fun onResponse(
-                    call: Call<List<Recipe>>,
-                    response: Response<List<Recipe>>
-                ) {
-                    response.body()?.let { recipes ->
-                        state.value = recipes.restoreSelections()
-                    }
-                }
-
-                override fun onFailure(call: Call<List<Recipe>>, t: Throwable) {
-                    t.printStackTrace()
-                }
-
-            }
-        )
-
+        viewModelScope.launch(errorHandler) {
+            val recipes = getRemoteRecipes()
+                state.value = recipes.restoreSelections()
+        }
     }
     private fun storeSelection(item: Recipe) {
         val savedToggled = stateHandle
@@ -79,11 +72,6 @@ class RecipesViewModel(private val stateHandle: SavedStateHandle): ViewModel() {
         recipes[recipeIndex] = recipe.copy(isFavourite = !recipe.isFavourite)
         storeSelection(recipes[recipeIndex])
         state.value = recipes
-    }
-
-    override fun onCleared() {
-        super.onCleared()
-        recipesCall.cancel()
     }
 
     companion object {
