@@ -33,7 +33,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.recipesapp.ui.theme.RecipesAppTheme
 
 @Composable
-fun RecipesListScreen() {
+fun RecipesListScreen(onItemClick: (id: Int) -> Unit = {}) {
     val viewModel: RecipesViewModel = viewModel()
     LazyColumn(
         contentPadding = PaddingValues(
@@ -42,9 +42,11 @@ fun RecipesListScreen() {
         )
     ){
         items(viewModel.state.value) { recipe ->
-            RecipeListItem(recipe) { id ->
-                viewModel.toggleFavorite(id)
-            }
+            RecipeListItem(
+                item = recipe,
+                onFavoriteClick = { id -> viewModel.toggleFavorite(id) },
+                onItemClick = { id -> onItemClick(id) }
+            )
         }
     }
 
@@ -52,7 +54,8 @@ fun RecipesListScreen() {
 
 @Composable
 fun RecipeListItem(item: Recipe,
-                   onClick: (id: Int) -> Unit) {
+                   onFavoriteClick: (id: Int) -> Unit,
+                   onItemClick: (id: Int) -> Unit) {
     val icon = if (item.isFavourite)
         Icons.Filled.Favorite
     else
@@ -61,7 +64,8 @@ fun RecipeListItem(item: Recipe,
     Card(elevation = CardDefaults.cardElevation(),
         modifier = Modifier
             .padding(8.dp)
-            .wrapContentHeight())
+            .wrapContentHeight()
+            .clickable { onItemClick(item.id) })
     {
         Row(verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.padding(8.dp)) {
@@ -73,7 +77,7 @@ fun RecipeListItem(item: Recipe,
                 item.description,
                 Modifier.weight(0.7f))
             RecipeIcon(icon, Modifier.weight(0.15f)) {
-                onClick(item.id)
+                onFavoriteClick(item.id)
             }
         }
     }
@@ -81,7 +85,12 @@ fun RecipeListItem(item: Recipe,
 
 
 @Composable
-private fun RecipeDetails(name: String, description: String, modifier: Modifier) {
+fun RecipeDetails(
+    name: String,
+    description: String,
+    modifier: Modifier,
+    horizontalAlignment: Alignment.Horizontal = Alignment.Start
+) {
     Column(modifier = modifier) {
         Text(text = name,
             style = MaterialTheme.typography.headlineSmall)
@@ -91,7 +100,7 @@ private fun RecipeDetails(name: String, description: String, modifier: Modifier)
 }
 
 @Composable
-private fun RecipeIcon(icon: ImageVector, modifier: Modifier, onClick: () -> Unit = {}) {
+fun RecipeIcon(icon: ImageVector, modifier: Modifier, onClick: () -> Unit = {}) {
     Image(imageVector = icon,
         contentDescription = "Recipe icon",
         modifier = modifier
