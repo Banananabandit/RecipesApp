@@ -1,6 +1,7 @@
 package com.example.recipesapp
 
 import retrofit2.Call
+import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.Query
 
@@ -13,4 +14,5 @@ interface RecipesApiService {
         @Query("equalTo")
         id: Int
     ): Map<String, Recipe>
+
 }

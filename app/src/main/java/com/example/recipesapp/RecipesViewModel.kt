@@ -8,12 +8,16 @@ import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import retrofit2.HttpException
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.Retrofit
+import java.net.ConnectException
+import java.net.UnknownHostException
 
 class RecipesViewModel(private val stateHandle: SavedStateHandle): ViewModel() {
 
     private var restInterface: RecipesApiService
+    private var recipesDao= RecipesDb.getDaoInstance(RecipesApplication.getAppContext())
     val state = mutableStateOf(emptyList<Recipe>())
     private val errorHandler = CoroutineExceptionHandler{ _, exception ->
         exception.printStackTrace()
@@ -31,18 +35,31 @@ class RecipesViewModel(private val stateHandle: SavedStateHandle): ViewModel() {
         getRecipes()
     }
 
-    private suspend fun getRemoteRecipes(): List<Recipe> {
+    private fun getRecipes() {
+        viewModelScope.launch(errorHandler) {
+            val recipes = getAllRecipes()
+            state.value = recipes.restoreSelections()
+        }
+    }
+    private suspend fun getAllRecipes(): List<Recipe> {
         return withContext(Dispatchers.IO) {
-            restInterface.getRecipes()
+            try {
+                val recipes = restInterface.getRecipes()
+                recipesDao.addAll(recipes)
+                return@withContext recipes
+            } catch (e: Exception) {
+                when (e) {
+                    is UnknownHostException,
+                    is ConnectException,
+                    is HttpException -> {
+                        return@withContext recipesDao.getAll()
+                    }
+                    else -> throw e
+                }
+            }
         }
     }
 
-    private fun getRecipes() {
-        viewModelScope.launch(errorHandler) {
-            val recipes = getRemoteRecipes()
-                state.value = recipes.restoreSelections()
-        }
-    }
     private fun storeSelection(item: Recipe) {
         val savedToggled = stateHandle
             .get<List<Int>?>(FAVORITES)
