@@ -16,7 +16,7 @@ import java.net.UnknownHostException
 
 class RecipesViewModel(private val stateHandle: SavedStateHandle): ViewModel() {
 
-    private var restInterface: RecipesApiService
+    private val restInterface: RecipesApiService
     private var recipesDao= RecipesDb.getDaoInstance(RecipesApplication.getAppContext())
     val state = mutableStateOf(emptyList<Recipe>())
     private val errorHandler = CoroutineExceptionHandler{ _, exception ->
@@ -60,6 +60,14 @@ class RecipesViewModel(private val stateHandle: SavedStateHandle): ViewModel() {
         }
     }
 
+    private suspend fun toggleFavoriteRecipe(id: Int, oldValue: Boolean) =
+        withContext(Dispatchers.IO) {
+            recipesDao.update(PartialRecipe(
+                id = id,
+                isFavorite = !oldValue)
+            )
+        }
+
     private fun storeSelection(item: Recipe) {
         val savedToggled = stateHandle
             .get<List<Int>?>(FAVORITES)
@@ -74,8 +82,10 @@ class RecipesViewModel(private val stateHandle: SavedStateHandle): ViewModel() {
     private fun List<Recipe>.restoreSelections(): List<Recipe> {
         stateHandle.get<List<Int>?>(FAVORITES)?.let { selectedIds ->
             val recipesMap = this.associateBy { it.id }
+                .toMutableMap()
             selectedIds.forEach { id ->
-                recipesMap[id]?.isFavourite = true
+                val recipe = recipesMap[id] ?: return@forEach
+                recipesMap[id] = recipe.copy(isFavourite = true)
             }
             return recipesMap.values.toList()
         }
@@ -89,6 +99,9 @@ class RecipesViewModel(private val stateHandle: SavedStateHandle): ViewModel() {
         recipes[recipeIndex] = recipe.copy(isFavourite = !recipe.isFavourite)
         storeSelection(recipes[recipeIndex])
         state.value = recipes
+        viewModelScope.launch {
+            toggleFavoriteRecipe(id, recipe.isFavourite)
+        }
     }
 
     companion object {
