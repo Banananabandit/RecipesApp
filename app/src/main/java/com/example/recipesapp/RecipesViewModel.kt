@@ -44,20 +44,32 @@ class RecipesViewModel(private val stateHandle: SavedStateHandle): ViewModel() {
     private suspend fun getAllRecipes(): List<Recipe> {
         return withContext(Dispatchers.IO) {
             try {
-                val recipes = restInterface.getRecipes()
-                recipesDao.addAll(recipes)
-                return@withContext recipes
+                refreshCache()
             } catch (e: Exception) {
                 when (e) {
                     is UnknownHostException,
                     is ConnectException,
                     is HttpException -> {
-                        return@withContext recipesDao.getAll()
+                        if (recipesDao.getAll().isEmpty()) {
+                            throw Exception("Network request failed." + "Database holds no data.")
+                        }
                     }
                     else -> throw e
                 }
             }
+            return@withContext recipesDao.getAll()
         }
+    }
+
+    private suspend fun refreshCache() {
+        val remoteRecipes = restInterface.getRecipes()
+        val favoriteRecipes = recipesDao.getAllFavorited()
+        recipesDao.addAll(remoteRecipes)
+        recipesDao.updateAll(
+            favoriteRecipes.map {
+                PartialRecipe(it.id, true)
+            }
+        )
     }
 
     private suspend fun toggleFavoriteRecipe(id: Int, oldValue: Boolean) =
@@ -66,6 +78,7 @@ class RecipesViewModel(private val stateHandle: SavedStateHandle): ViewModel() {
                 id = id,
                 isFavorite = !oldValue)
             )
+            recipesDao.getAll()
         }
 
     private fun storeSelection(item: Recipe) {
@@ -100,7 +113,8 @@ class RecipesViewModel(private val stateHandle: SavedStateHandle): ViewModel() {
         storeSelection(recipes[recipeIndex])
         state.value = recipes
         viewModelScope.launch {
-            toggleFavoriteRecipe(id, recipe.isFavourite)
+            val updatedRecipes = toggleFavoriteRecipe(id, recipe.isFavourite)
+            state.value = updatedRecipes
         }
     }
 

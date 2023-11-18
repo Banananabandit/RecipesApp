@@ -16,4 +16,10 @@ interface RecipesDao {
 
     @Update(entity = Recipe::class)
     suspend fun update(partialRecipe: PartialRecipe)
+
+    @Update(entity = Recipe::class)
+    suspend fun updateAll(partialRecipe: List<PartialRecipe>)
+
+    @Query("SELECT * FROM recipes WHERE is_favorite = 1")
+    suspend fun getAllFavorited(): List<Recipe>
 }
