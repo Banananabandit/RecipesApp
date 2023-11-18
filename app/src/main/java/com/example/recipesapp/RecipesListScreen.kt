@@ -44,7 +44,7 @@ fun RecipesListScreen(onItemClick: (id: Int) -> Unit = {}) {
         items(viewModel.state.value) { recipe ->
             RecipeListItem(
                 item = recipe,
-                onFavoriteClick = { id -> viewModel.toggleFavorite(id) },
+                onFavoriteClick = { id, oldValue -> viewModel.toggleFavorite(id, oldValue) },
                 onItemClick = { id -> onItemClick(id) }
             )
         }
@@ -54,7 +54,7 @@ fun RecipesListScreen(onItemClick: (id: Int) -> Unit = {}) {
 
 @Composable
 fun RecipeListItem(item: Recipe,
-                   onFavoriteClick: (id: Int) -> Unit,
+                   onFavoriteClick: (id: Int, oldValue: Boolean) -> Unit,
                    onItemClick: (id: Int) -> Unit) {
     val icon = if (item.isFavourite)
         Icons.Filled.Favorite
@@ -77,7 +77,7 @@ fun RecipeListItem(item: Recipe,
                 item.description,
                 Modifier.weight(0.7f))
             RecipeIcon(icon, Modifier.weight(0.15f)) {
-                onFavoriteClick(item.id)
+                onFavoriteClick(item.id, item.isFavourite)
             }
         }
     }

@@ -14,7 +14,7 @@ import retrofit2.Retrofit
 import java.net.ConnectException
 import java.net.UnknownHostException
 
-class RecipesViewModel(private val stateHandle: SavedStateHandle): ViewModel() {
+class RecipesViewModel(): ViewModel() {
 
     private val restInterface: RecipesApiService
     private var recipesDao= RecipesDb.getDaoInstance(RecipesApplication.getAppContext())
@@ -37,8 +37,7 @@ class RecipesViewModel(private val stateHandle: SavedStateHandle): ViewModel() {
 
     private fun getRecipes() {
         viewModelScope.launch(errorHandler) {
-            val recipes = getAllRecipes()
-            state.value = recipes.restoreSelections()
+            state.value = getAllRecipes()
         }
     }
     private suspend fun getAllRecipes(): List<Recipe> {
@@ -81,44 +80,12 @@ class RecipesViewModel(private val stateHandle: SavedStateHandle): ViewModel() {
             recipesDao.getAll()
         }
 
-    private fun storeSelection(item: Recipe) {
-        val savedToggled = stateHandle
-            .get<List<Int>?>(FAVORITES)
-            .orEmpty()
-            .toMutableList()
 
-        if (item.isFavourite) savedToggled.add(item.id)
-        else savedToggled.remove(item.id)
-        stateHandle[FAVORITES] = savedToggled
-    }
 
-    private fun List<Recipe>.restoreSelections(): List<Recipe> {
-        stateHandle.get<List<Int>?>(FAVORITES)?.let { selectedIds ->
-            val recipesMap = this.associateBy { it.id }
-                .toMutableMap()
-            selectedIds.forEach { id ->
-                val recipe = recipesMap[id] ?: return@forEach
-                recipesMap[id] = recipe.copy(isFavourite = true)
-            }
-            return recipesMap.values.toList()
-        }
-        return this
-    }
-
-    fun toggleFavorite(id: Int) {
-        val recipes = state.value.toMutableList()
-        val recipeIndex = recipes.indexOfFirst { it.id == id }
-        val recipe = recipes[recipeIndex]
-        recipes[recipeIndex] = recipe.copy(isFavourite = !recipe.isFavourite)
-        storeSelection(recipes[recipeIndex])
-        state.value = recipes
+    fun toggleFavorite(id: Int, oldValue: Boolean) {
         viewModelScope.launch {
-            val updatedRecipes = toggleFavoriteRecipe(id, recipe.isFavourite)
+            val updatedRecipes = toggleFavoriteRecipe(id, oldValue)
             state.value = updatedRecipes
         }
-    }
-
-    companion object {
-        const val FAVORITES = "favorites"
     }
 }
