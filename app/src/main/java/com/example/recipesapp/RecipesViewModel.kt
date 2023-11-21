@@ -18,9 +18,18 @@ class RecipesViewModel(): ViewModel() {
 
     private val restInterface: RecipesApiService
     private var recipesDao= RecipesDb.getDaoInstance(RecipesApplication.getAppContext())
-    val state = mutableStateOf(emptyList<Recipe>())
+    val state = mutableStateOf(
+        RecipeScreenState(
+            recipes = listOf(),
+            isLoading = true
+        )
+    )
     private val errorHandler = CoroutineExceptionHandler{ _, exception ->
         exception.printStackTrace()
+        state.value = state.value.copy(
+            error = exception.message,
+            isLoading = false
+        )
     }
 
     init {
@@ -37,7 +46,11 @@ class RecipesViewModel(): ViewModel() {
 
     private fun getRecipes() {
         viewModelScope.launch(errorHandler) {
-            state.value = getAllRecipes()
+            val recipes = getAllRecipes()
+            state.value = state.value.copy(
+                recipes = recipes,
+                isLoading = false
+            )
         }
     }
     private suspend fun getAllRecipes(): List<Recipe> {
@@ -85,7 +98,9 @@ class RecipesViewModel(): ViewModel() {
     fun toggleFavorite(id: Int, oldValue: Boolean) {
         viewModelScope.launch {
             val updatedRecipes = toggleFavoriteRecipe(id, oldValue)
-            state.value = updatedRecipes
+            state.value = state.value.copy(
+                recipes = updatedRecipes
+            )
         }
     }
 }

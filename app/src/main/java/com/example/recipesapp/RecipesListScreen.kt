@@ -34,8 +34,7 @@ import com.example.recipesapp.ui.theme.RecipesAppTheme
 @Composable
 fun RecipesListScreen(onItemClick: (id: Int) -> Unit = {}) {
     val viewModel: RecipesViewModel = viewModel()
-    val recipes = viewModel.state.value
-    val isLoading = recipes.isEmpty()
+    val state = viewModel.state.value
 
     Box(
         contentAlignment = Alignment.Center,
@@ -47,7 +46,7 @@ fun RecipesListScreen(onItemClick: (id: Int) -> Unit = {}) {
                 horizontal = 8.dp
             )
         ){
-            items(recipes) { recipe ->
+            items(state.recipes) { recipe ->
                 RecipeListItem(
                     item = recipe,
                     onFavoriteClick = { id, oldValue -> viewModel.toggleFavorite(id, oldValue) },
@@ -55,8 +54,10 @@ fun RecipesListScreen(onItemClick: (id: Int) -> Unit = {}) {
                 )
             }
         }
-        if (isLoading)
+        if (state.isLoading)
             CircularProgressIndicator()
+        if (state.error != null)
+            Text(text = state.error)
     }
 }
 
