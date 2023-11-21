@@ -14,10 +14,8 @@ import retrofit2.Retrofit
 import java.net.ConnectException
 import java.net.UnknownHostException
 
-class RecipesViewModel(): ViewModel() {
-
-    private val restInterface: RecipesApiService
-    private var recipesDao= RecipesDb.getDaoInstance(RecipesApplication.getAppContext())
+class RecipesViewModel: ViewModel() {
+    private val repository = RecipesRepository()
     val state = mutableStateOf(
         RecipeScreenState(
             recipes = listOf(),
@@ -33,71 +31,21 @@ class RecipesViewModel(): ViewModel() {
     }
 
     init {
-        val retrofit: Retrofit = Retrofit.Builder()
-            .addConverterFactory(GsonConverterFactory.create())
-            .baseUrl("https://recipesapp-7cae7-default-rtdb.firebaseio.com/")
-            .build()
-
-        restInterface = retrofit.create(
-            RecipesApiService::class.java
-        )
         getRecipes()
     }
 
     private fun getRecipes() {
         viewModelScope.launch(errorHandler) {
-            val recipes = getAllRecipes()
+            val recipes = repository.getAllRecipes()
             state.value = state.value.copy(
                 recipes = recipes,
                 isLoading = false
             )
         }
     }
-    private suspend fun getAllRecipes(): List<Recipe> {
-        return withContext(Dispatchers.IO) {
-            try {
-                refreshCache()
-            } catch (e: Exception) {
-                when (e) {
-                    is UnknownHostException,
-                    is ConnectException,
-                    is HttpException -> {
-                        if (recipesDao.getAll().isEmpty()) {
-                            throw Exception("Network request failed." + "Database holds no data.")
-                        }
-                    }
-                    else -> throw e
-                }
-            }
-            return@withContext recipesDao.getAll()
-        }
-    }
-
-    private suspend fun refreshCache() {
-        val remoteRecipes = restInterface.getRecipes()
-        val favoriteRecipes = recipesDao.getAllFavorited()
-        recipesDao.addAll(remoteRecipes)
-        recipesDao.updateAll(
-            favoriteRecipes.map {
-                PartialRecipe(it.id, true)
-            }
-        )
-    }
-
-    private suspend fun toggleFavoriteRecipe(id: Int, oldValue: Boolean) =
-        withContext(Dispatchers.IO) {
-            recipesDao.update(PartialRecipe(
-                id = id,
-                isFavorite = !oldValue)
-            )
-            recipesDao.getAll()
-        }
-
-
-
     fun toggleFavorite(id: Int, oldValue: Boolean) {
         viewModelScope.launch {
-            val updatedRecipes = toggleFavoriteRecipe(id, oldValue)
+            val updatedRecipes = repository.toggleFavoriteRecipe(id, oldValue)
             state.value = state.value.copy(
                 recipes = updatedRecipes
             )
