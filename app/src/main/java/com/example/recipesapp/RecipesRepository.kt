@@ -17,7 +17,12 @@ class RecipesRepository {
             .create(RecipesApiService::class.java)
     private var recipesDao= RecipesDb.getDaoInstance(RecipesApplication.getAppContext())
 
-    suspend fun getAllRecipes(): List<Recipe> {
+    suspend fun getRecipes(): List<Recipe> {
+        return withContext(Dispatchers.IO) {
+            return@withContext recipesDao.getAll()
+        }
+    }
+    suspend fun loadRecipes() {
         return withContext(Dispatchers.IO) {
             try {
                 refreshCache()
@@ -33,7 +38,6 @@ class RecipesRepository {
                     else -> throw e
                 }
             }
-            return@withContext recipesDao.getAll()
         }
     }
 
@@ -48,12 +52,11 @@ class RecipesRepository {
         )
     }
 
-    suspend fun toggleFavoriteRecipe(id: Int, oldValue: Boolean) =
+    suspend fun toggleFavoriteRecipe(id: Int, value: Boolean) =
         withContext(Dispatchers.IO) {
             recipesDao.update(PartialRecipe(
                 id = id,
-                isFavorite = !oldValue)
+                isFavorite = value)
             )
-            recipesDao.getAll()
         }
 }

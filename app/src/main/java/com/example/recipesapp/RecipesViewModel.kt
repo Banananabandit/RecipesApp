@@ -8,13 +8,15 @@ import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.launch
 
 class RecipesViewModel: ViewModel() {
-    private val repository = RecipesRepository()
+    private val getInitialRecipeUseCase = GetInitialRecipesUseCase()
+    private val toggleFavoriteRecipeUseCase = ToggleFavoriteRecipeUseCase()
     private val _state = mutableStateOf(
         RecipeScreenState(
             recipes = listOf(),
             isLoading = true
         )
     )
+
     val state: State<RecipeScreenState>
         get() = _state
     private val errorHandler = CoroutineExceptionHandler{ _, exception ->
@@ -31,7 +33,7 @@ class RecipesViewModel: ViewModel() {
 
     private fun getRecipes() {
         viewModelScope.launch(errorHandler) {
-            val recipes = repository.getAllRecipes()
+            val recipes = getInitialRecipeUseCase()
             _state.value = _state.value.copy(
                 recipes = recipes,
                 isLoading = false
@@ -40,7 +42,7 @@ class RecipesViewModel: ViewModel() {
     }
     fun toggleFavorite(id: Int, oldValue: Boolean) {
         viewModelScope.launch {
-            val updatedRecipes = repository.toggleFavoriteRecipe(id, oldValue)
+            val updatedRecipes = toggleFavoriteRecipeUseCase(id, oldValue)
             _state.value = _state.value.copy(
                 recipes = updatedRecipes
             )
