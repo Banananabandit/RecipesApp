@@ -30,7 +30,13 @@ class RecipeDetailsViewModel(private val stateHandle: SavedStateHandle): ViewMod
     private suspend fun getRemoteRecipe(id: Int): Recipe {
         return withContext(Dispatchers.IO) {
             val responseMap = restInterface.getRecipe(id)
-            return@withContext responseMap.values.first()
+            return@withContext responseMap.values.first().let {
+                Recipe(
+                    id = it.id,
+                    title = it.title,
+                    description = it.description
+                )
+            }
         }
     }
 }

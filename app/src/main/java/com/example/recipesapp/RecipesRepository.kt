@@ -19,7 +19,9 @@ class RecipesRepository {
 
     suspend fun getRecipes(): List<Recipe> {
         return withContext(Dispatchers.IO) {
-            return@withContext recipesDao.getAll()
+            return@withContext recipesDao.getAll().map {
+                Recipe(it.id, it.title, it.description, it.isFavourite)
+            }
         }
     }
     suspend fun loadRecipes() {
@@ -44,17 +46,24 @@ class RecipesRepository {
     private suspend fun refreshCache() {
         val remoteRecipes = restInterface.getRecipes()
         val favoriteRecipes = recipesDao.getAllFavorited()
-        recipesDao.addAll(remoteRecipes)
+        recipesDao.addAll(remoteRecipes.map {
+            LocalRecipe(
+                it.id,
+                it.title,
+                it.description,
+                false
+            )
+        })
         recipesDao.updateAll(
             favoriteRecipes.map {
-                PartialRecipe(it.id, true)
+                PartialLocalRecipe(it.id, true)
             }
         )
     }
 
     suspend fun toggleFavoriteRecipe(id: Int, value: Boolean) =
         withContext(Dispatchers.IO) {
-            recipesDao.update(PartialRecipe(
+            recipesDao.update(PartialLocalRecipe(
                 id = id,
                 isFavorite = value)
             )

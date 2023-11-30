@@ -7,12 +7,12 @@ import retrofit2.http.Query
 
 interface RecipesApiService {
     @GET("recipes.json")
-    suspend fun getRecipes(): List<Recipe>
+    suspend fun getRecipes(): List<RemoteRecipe>
 
     @GET("recipes.json?orderBy=\"r_id\"")
     suspend fun getRecipe(
         @Query("equalTo")
         id: Int
-    ): Map<String, Recipe>
+    ): Map<String, RemoteRecipe>
 
 }

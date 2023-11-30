@@ -9,17 +9,17 @@ import androidx.room.Update
 @Dao
 interface RecipesDao {
     @Query("SELECT * FROM recipes")
-    suspend fun getAll(): List<Recipe>
+    suspend fun getAll(): List<LocalRecipe>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun addAll(recipes: List<Recipe>)
+    suspend fun addAll(recipes: List<LocalRecipe>)
 
-    @Update(entity = Recipe::class)
-    suspend fun update(partialRecipe: PartialRecipe)
+    @Update(entity = LocalRecipe::class)
+    suspend fun update(partialRecipe: PartialLocalRecipe)
 
-    @Update(entity = Recipe::class)
-    suspend fun updateAll(partialRecipe: List<PartialRecipe>)
+    @Update(entity = LocalRecipe::class)
+    suspend fun updateAll(partialRecipe: List<PartialLocalRecipe>)
 
     @Query("SELECT * FROM recipes WHERE is_favorite = 1")
-    suspend fun getAllFavorited(): List<Recipe>
+    suspend fun getAllFavorited(): List<LocalRecipe>
 }
