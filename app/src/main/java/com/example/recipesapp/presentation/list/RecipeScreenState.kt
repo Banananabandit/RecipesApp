@@ -1,4 +1,6 @@
-package com.example.recipesapp
+package com.example.recipesapp.presentation.list
+
+import com.example.recipesapp.domain.Recipe
 
 data class RecipeScreenState(
     val recipes: List<Recipe>,

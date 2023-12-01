@@ -1,4 +1,4 @@
-package com.example.recipesapp
+package com.example.recipesapp.presentation.list
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -29,6 +29,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.recipesapp.domain.Recipe
 import com.example.recipesapp.ui.theme.RecipesAppTheme
 
 @Composable

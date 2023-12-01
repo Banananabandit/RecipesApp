@@ -1,7 +1,5 @@
-package com.example.recipesapp
+package com.example.recipesapp.data.remote
 
-import retrofit2.Call
-import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.Query
 

@@ -1,5 +1,11 @@
-package com.example.recipesapp
+package com.example.recipesapp.data
 
+import com.example.recipesapp.RecipesApplication
+import com.example.recipesapp.data.local.LocalRecipe
+import com.example.recipesapp.data.local.PartialLocalRecipe
+import com.example.recipesapp.data.local.RecipesDb
+import com.example.recipesapp.data.remote.RecipesApiService
+import com.example.recipesapp.domain.Recipe
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import retrofit2.HttpException
@@ -63,7 +69,8 @@ class RecipesRepository {
 
     suspend fun toggleFavoriteRecipe(id: Int, value: Boolean) =
         withContext(Dispatchers.IO) {
-            recipesDao.update(PartialLocalRecipe(
+            recipesDao.update(
+                PartialLocalRecipe(
                 id = id,
                 isFavorite = value)
             )

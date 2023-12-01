@@ -1,4 +1,6 @@
-package com.example.recipesapp
+package com.example.recipesapp.domain
+
+import com.example.recipesapp.data.RecipesRepository
 
 class GetSortedRecipesUseCase {
     private val repository: RecipesRepository = RecipesRepository()

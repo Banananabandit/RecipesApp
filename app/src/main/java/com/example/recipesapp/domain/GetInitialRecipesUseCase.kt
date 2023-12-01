@@ -1,4 +1,6 @@
-package com.example.recipesapp
+package com.example.recipesapp.domain
+
+import com.example.recipesapp.data.RecipesRepository
 
 class GetInitialRecipesUseCase {
     private val repository: RecipesRepository = RecipesRepository()

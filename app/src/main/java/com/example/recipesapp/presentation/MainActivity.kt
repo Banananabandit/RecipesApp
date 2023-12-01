@@ -1,4 +1,4 @@
-package com.example.recipesapp
+package com.example.recipesapp.presentation
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -15,6 +15,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.example.recipesapp.presentation.details.RecipeDetailScreen
+import com.example.recipesapp.presentation.list.RecipesListScreen
 import com.example.recipesapp.ui.theme.RecipesAppTheme
 
 class MainActivity : ComponentActivity() {

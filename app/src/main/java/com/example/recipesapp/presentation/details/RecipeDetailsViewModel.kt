@@ -1,9 +1,11 @@
-package com.example.recipesapp
+package com.example.recipesapp.presentation.details
 
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.recipesapp.data.remote.RecipesApiService
+import com.example.recipesapp.domain.Recipe
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext

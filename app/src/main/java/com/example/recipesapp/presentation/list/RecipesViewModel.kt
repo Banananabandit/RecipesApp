@@ -1,9 +1,11 @@
-package com.example.recipesapp
+package com.example.recipesapp.presentation.list
 
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.recipesapp.domain.GetInitialRecipesUseCase
+import com.example.recipesapp.domain.ToggleFavoriteRecipeUseCase
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.launch
 

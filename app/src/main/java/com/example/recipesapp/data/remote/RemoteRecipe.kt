@@ -1,4 +1,4 @@
-package com.example.recipesapp
+package com.example.recipesapp.data.remote
 
 import com.google.gson.annotations.SerializedName
 
