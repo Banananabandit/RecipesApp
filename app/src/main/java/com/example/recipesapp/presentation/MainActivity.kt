@@ -10,6 +10,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -17,6 +18,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.recipesapp.presentation.details.RecipeDetailScreen
 import com.example.recipesapp.presentation.list.RecipesListScreen
+import com.example.recipesapp.presentation.list.RecipesViewModel
 import com.example.recipesapp.ui.theme.RecipesAppTheme
 
 class MainActivity : ComponentActivity() {
@@ -41,9 +43,14 @@ fun RecipesApp() {
     val navController = rememberNavController()
     NavHost(navController = navController, startDestination = "recipes"){
         composable(route = "recipes") {
-            RecipesListScreen {id ->
-                navController.navigate("recipes/$id")
-            }
+            val viewModel: RecipesViewModel = viewModel()
+            RecipesListScreen (
+                state = viewModel.state.value,
+                onItemClick = {id ->
+                    navController.navigate("recipes/$id")},
+                onFavoriteClick = { id, oldValue ->
+                    viewModel.toggleFavorite(id, oldValue)
+                })
         }
         composable(
             route = "recipes/{recipe_id}",

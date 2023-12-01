@@ -33,10 +33,11 @@ import com.example.recipesapp.domain.Recipe
 import com.example.recipesapp.ui.theme.RecipesAppTheme
 
 @Composable
-fun RecipesListScreen(onItemClick: (id: Int) -> Unit = {}) {
-    val viewModel: RecipesViewModel = viewModel()
-    val state = viewModel.state.value
-
+fun RecipesListScreen(
+    state: RecipeScreenState,
+    onItemClick: (id: Int) -> Unit = {},
+    onFavoriteClick: (id: Int, oldValue: Boolean) -> Unit
+) {
     Box(
         contentAlignment = Alignment.Center,
         modifier = Modifier.fillMaxSize()
@@ -50,7 +51,8 @@ fun RecipesListScreen(onItemClick: (id: Int) -> Unit = {}) {
             items(state.recipes) { recipe ->
                 RecipeListItem(
                     item = recipe,
-                    onFavoriteClick = { id, oldValue -> viewModel.toggleFavorite(id, oldValue) },
+                    onFavoriteClick = { id, oldValue ->
+                        onFavoriteClick(id, oldValue) },
                     onItemClick = { id -> onItemClick(id) }
                 )
             }
@@ -125,6 +127,10 @@ fun RecipeIcon(icon: ImageVector, modifier: Modifier, onClick: () -> Unit = {}) 
 @Composable
 fun DefaultPreview() {
     RecipesAppTheme {
-        RecipesListScreen()
+        RecipesListScreen(
+            RecipeScreenState(listOf(), true),
+            {},
+            {_, _ ->}
+        )
     }
 }
