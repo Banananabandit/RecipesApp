@@ -6,12 +6,19 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.recipesapp.domain.GetInitialRecipesUseCase
 import com.example.recipesapp.domain.ToggleFavoriteRecipeUseCase
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class RecipesViewModel: ViewModel() {
-    private val getInitialRecipeUseCase = GetInitialRecipesUseCase()
-    private val toggleFavoriteRecipeUseCase = ToggleFavoriteRecipeUseCase()
+@HiltViewModel
+class RecipesViewModel @Inject constructor(
+    private val getInitialRecipesUseCase: GetInitialRecipesUseCase,
+    private val toggleFavoriteRecipeUseCase: ToggleFavoriteRecipeUseCase
+)
+    : ViewModel() {
+//    private val getInitialRecipeUseCase = GetInitialRecipesUseCase()
+//    private val toggleFavoriteRecipeUseCase = ToggleFavoriteRecipeUseCase()
     private val _state = mutableStateOf(
         RecipeScreenState(
             recipes = listOf(),
@@ -35,7 +42,7 @@ class RecipesViewModel: ViewModel() {
 
     private fun getRecipes() {
         viewModelScope.launch(errorHandler) {
-            val recipes = getInitialRecipeUseCase()
+            val recipes = getInitialRecipesUseCase()
             _state.value = _state.value.copy(
                 recipes = recipes,
                 isLoading = false

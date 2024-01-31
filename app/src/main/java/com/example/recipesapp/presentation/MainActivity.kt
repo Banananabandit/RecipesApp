@@ -10,6 +10,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -20,7 +21,9 @@ import com.example.recipesapp.presentation.details.RecipeDetailScreen
 import com.example.recipesapp.presentation.list.RecipesListScreen
 import com.example.recipesapp.presentation.list.RecipesViewModel
 import com.example.recipesapp.ui.theme.RecipesAppTheme
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -43,7 +46,7 @@ fun RecipesApp() {
     val navController = rememberNavController()
     NavHost(navController = navController, startDestination = "recipes"){
         composable(route = "recipes") {
-            val viewModel: RecipesViewModel = viewModel()
+            val viewModel: RecipesViewModel = hiltViewModel()
             RecipesListScreen (
                 state = viewModel.state.value,
                 onItemClick = {id ->

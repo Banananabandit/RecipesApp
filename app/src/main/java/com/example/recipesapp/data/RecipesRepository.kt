@@ -3,6 +3,7 @@ package com.example.recipesapp.data
 import com.example.recipesapp.RecipesApplication
 import com.example.recipesapp.data.local.LocalRecipe
 import com.example.recipesapp.data.local.PartialLocalRecipe
+import com.example.recipesapp.data.local.RecipesDao
 import com.example.recipesapp.data.local.RecipesDb
 import com.example.recipesapp.data.remote.RecipesApiService
 import com.example.recipesapp.domain.Recipe
@@ -13,15 +14,21 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.net.ConnectException
 import java.net.UnknownHostException
+import javax.inject.Inject
+import javax.inject.Singleton
 
-class RecipesRepository {
-    private var restInterface: RecipesApiService =
-        Retrofit.Builder()
-            .addConverterFactory(GsonConverterFactory.create())
-            .baseUrl("https://recipesapp-7cae7-default-rtdb.firebaseio.com/")
-            .build()
-            .create(RecipesApiService::class.java)
-    private var recipesDao= RecipesDb.getDaoInstance(RecipesApplication.getAppContext())
+@Singleton
+class RecipesRepository @Inject constructor(
+    private val restInterface: RecipesApiService,
+    private val recipesDao: RecipesDao
+) {
+//    private var restInterface: RecipesApiService =
+//        Retrofit.Builder()
+//            .addConverterFactory(GsonConverterFactory.create())
+//            .baseUrl("https://recipesapp-7cae7-default-rtdb.firebaseio.com/")
+//            .build()
+//            .create(RecipesApiService::class.java)
+//    private var recipesDao= RecipesDb.getDaoInstance(RecipesApplication.getAppContext())
 
     suspend fun getRecipes(): List<Recipe> {
         return withContext(Dispatchers.IO) {
