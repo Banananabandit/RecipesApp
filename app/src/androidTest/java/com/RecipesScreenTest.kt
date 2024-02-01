@@ -4,6 +4,7 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotDisplayed
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onAllNodesWithContentDescription
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import com.example.recipesapp.presentation.Description
@@ -34,6 +35,6 @@ class RecipesScreenTest {
                 )
             }
         }
-        testRule.onNodeWithTag(Description.RECIPES_LOADING).assertIsDisplayed()
+        testRule.onNodeWithContentDescription(Description.RECIPES_LOADING).assertIsDisplayed()
     }
 }
