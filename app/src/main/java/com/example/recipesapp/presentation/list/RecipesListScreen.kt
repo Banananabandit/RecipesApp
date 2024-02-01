@@ -26,11 +26,16 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.recipesapp.domain.Recipe
+import com.example.recipesapp.presentation.Description
 import com.example.recipesapp.ui.theme.RecipesAppTheme
+import com.google.android.material.progressindicator.CircularProgressIndicator
 
 @Composable
 fun RecipesListScreen(
@@ -58,7 +63,9 @@ fun RecipesListScreen(
             }
         }
         if (state.isLoading)
-            CircularProgressIndicator()
+            CircularProgressIndicator(
+                Modifier.semantics { this.contentDescription = Description.RECIPES_LOADING }
+            )
         if (state.error != null)
             Text(text = state.error)
     }
