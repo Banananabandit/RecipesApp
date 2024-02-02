@@ -62,4 +62,24 @@ class RecipesScreenTest {
         testRule.onNodeWithContentDescription(Description.RECIPES_LOADING).assertDoesNotExist()
     }
 
+    @Test
+    fun errorMessage_isRendered() {
+        testRule.setContent {
+            RecipesAppTheme {
+                RecipesListScreen(
+                    state = RecipeScreenState(
+                        recipes = emptyList(),
+                        isLoading = false,
+                        error = "Error whilst loading the list!"
+                    ),
+                    onFavoriteClick = {
+                            _: Int, _: Boolean ->
+                    },
+                    onItemClick = {}
+                )
+            }
+        }
+        testRule.onNodeWithText("Error whilst loading the list!").assertIsDisplayed()
+        testRule.onNodeWithContentDescription(Description.RECIPES_LOADING).assertDoesNotExist()
+    }
 }

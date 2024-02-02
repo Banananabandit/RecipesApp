@@ -17,8 +17,6 @@ class RecipesViewModel @Inject constructor(
     private val toggleFavoriteRecipeUseCase: ToggleFavoriteRecipeUseCase
 )
     : ViewModel() {
-//    private val getInitialRecipeUseCase = GetInitialRecipesUseCase()
-//    private val toggleFavoriteRecipeUseCase = ToggleFavoriteRecipeUseCase()
     private val _state = mutableStateOf(
         RecipeScreenState(
             recipes = listOf(),
