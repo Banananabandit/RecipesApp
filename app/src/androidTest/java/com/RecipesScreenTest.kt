@@ -8,6 +8,7 @@ import androidx.compose.ui.test.onAllNodesWithContentDescription
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
 import com.example.recipesapp.DummyContent
 import com.example.recipesapp.presentation.Description
 import com.example.recipesapp.presentation.RecipesApp
@@ -82,4 +83,28 @@ class RecipesScreenTest {
         testRule.onNodeWithText("Error whilst loading the list!").assertIsDisplayed()
         testRule.onNodeWithContentDescription(Description.RECIPES_LOADING).assertDoesNotExist()
     }
+
+    @Test
+    fun stateWithContent_ClickOnItem_isRegistered() {
+        val recipes = DummyContent.getDomainRecipes()
+        val targetRecipe = recipes[0]
+        testRule.setContent {
+            RecipesAppTheme {
+                RecipesListScreen(
+                    state = RecipeScreenState(
+                        recipes = recipes,
+                        isLoading = false
+                    ),
+                    onFavoriteClick = {
+                            _, _ ->
+                    },
+                    onItemClick = { id ->
+                        assert(id == targetRecipe.id)
+                    }
+                )
+            }
+        }
+        testRule.onNodeWithText(targetRecipe.title).performClick()
+    }
+
 }
