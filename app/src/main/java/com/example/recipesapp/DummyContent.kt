@@ -1,5 +1,6 @@
 package com.example.recipesapp
 
+import com.example.recipesapp.data.remote.RemoteRecipe
 import com.example.recipesapp.domain.Recipe
 
 object DummyContent {
@@ -10,4 +11,13 @@ object DummyContent {
         Recipe(3, "test3", "test_description3"),
         Recipe(4, "test4", "test_description4")
     )
+
+    fun getRemoteRecipes() = getDomainRecipes()
+        .map { recipe ->
+            RemoteRecipe(
+                recipe.id,
+                recipe.title,
+                recipe.description
+            )
+        }
 }

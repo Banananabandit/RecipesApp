@@ -4,9 +4,11 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.recipesapp.data.di.MainDispatcher
 import com.example.recipesapp.domain.GetInitialRecipesUseCase
 import com.example.recipesapp.domain.ToggleFavoriteRecipeUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -14,7 +16,8 @@ import javax.inject.Inject
 @HiltViewModel
 class RecipesViewModel @Inject constructor(
     private val getInitialRecipesUseCase: GetInitialRecipesUseCase,
-    private val toggleFavoriteRecipeUseCase: ToggleFavoriteRecipeUseCase
+    private val toggleFavoriteRecipeUseCase: ToggleFavoriteRecipeUseCase,
+    @MainDispatcher private val dispatcher: CoroutineDispatcher
 )
     : ViewModel() {
     private val _state = mutableStateOf(
@@ -39,7 +42,7 @@ class RecipesViewModel @Inject constructor(
     }
 
     private fun getRecipes() {
-        viewModelScope.launch(errorHandler) {
+        viewModelScope.launch(errorHandler + dispatcher) {
             val recipes = getInitialRecipesUseCase()
             _state.value = _state.value.copy(
                 recipes = recipes,
@@ -48,7 +51,7 @@ class RecipesViewModel @Inject constructor(
         }
     }
     fun toggleFavorite(id: Int, oldValue: Boolean) {
-        viewModelScope.launch {
+        viewModelScope.launch(errorHandler + dispatcher) {
             val updatedRecipes = toggleFavoriteRecipeUseCase(id, oldValue)
             _state.value = _state.value.copy(
                 recipes = updatedRecipes
