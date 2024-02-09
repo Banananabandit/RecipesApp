@@ -5,10 +5,14 @@ import com.example.recipesapp.data.remote.RecipesApiService
 import com.example.recipesapp.data.remote.RemoteRecipe
 import kotlinx.coroutines.delay
 
-class FakeApiService() : RecipesApiService {
+class FakeApiService(error: Exception? = null) : RecipesApiService {
+    private val loadingError = error
     override suspend fun getRecipes(): List<RemoteRecipe> {
-        delay(2000)
-        return DummyContent.getRemoteRecipes()
+        if (loadingError == null) {
+            delay(2000)
+            return DummyContent.getRemoteRecipes()
+        }
+        throw loadingError
     }
 
     override suspend fun getRecipe(id: Int): Map<String, RemoteRecipe> {

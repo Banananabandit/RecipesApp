@@ -19,6 +19,7 @@ import org.junit.Test
 class RecipesViewModelTest {
     private val dispatcher = StandardTestDispatcher()
     private val scope = TestScope(dispatcher)
+    private val error: Exception = Exception()
     @Test
     fun initialState_isProduced() = scope.runTest {
         // subject under test
@@ -46,9 +47,34 @@ class RecipesViewModelTest {
         )
     }
 
+    @Test
+    fun errorState_isProduced() = scope.runTest {
+        val viewModel = getViewModelWithError()
+        advanceUntilIdle()
+        val currentState = viewModel.state.value
+        assert(
+            currentState == RecipeScreenState(
+                recipes = emptyList(),
+                isLoading = false,
+                error = error.message
+            )
+        )
+    }
+
     private fun getViewModel(): RecipesViewModel {
 
         val recipesRepository = RecipesRepository(FakeApiService(), FakeRoomDao(), dispatcher)
+        val getSortedRecipesUseCase = GetSortedRecipesUseCase(recipesRepository)
+        val getInitialRecipesUseCase = GetInitialRecipesUseCase(recipesRepository, getSortedRecipesUseCase)
+        val toggleRecipesUseCase = ToggleFavoriteRecipeUseCase(recipesRepository, getSortedRecipesUseCase)
+
+        return RecipesViewModel(getInitialRecipesUseCase, toggleRecipesUseCase, dispatcher)
+    }
+
+    private fun getViewModelWithError(): RecipesViewModel {
+
+
+        val recipesRepository = RecipesRepository(FakeApiService(error), FakeRoomDao(), dispatcher)
         val getSortedRecipesUseCase = GetSortedRecipesUseCase(recipesRepository)
         val getInitialRecipesUseCase = GetInitialRecipesUseCase(recipesRepository, getSortedRecipesUseCase)
         val toggleRecipesUseCase = ToggleFavoriteRecipeUseCase(recipesRepository, getSortedRecipesUseCase)
