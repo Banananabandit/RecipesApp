@@ -5,7 +5,7 @@ import com.example.recipesapp.data.remote.RecipesApiService
 import com.example.recipesapp.data.remote.RemoteRecipe
 import kotlinx.coroutines.delay
 
-class FakeApiService : RecipesApiService {
+class FakeApiService() : RecipesApiService {
     override suspend fun getRecipes(): List<RemoteRecipe> {
         delay(2000)
         return DummyContent.getRemoteRecipes()

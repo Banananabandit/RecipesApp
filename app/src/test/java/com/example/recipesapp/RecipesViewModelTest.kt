@@ -11,6 +11,7 @@ import com.example.recipesapp.presentation.list.RecipesViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.Test
 
@@ -31,9 +32,23 @@ class RecipesViewModelTest {
         ))
     }
 
+    @Test
+    fun stateWithContent_isProduced() = scope.runTest {
+        val viewModel = getViewModel()
+        advanceUntilIdle()
+        val currentState = viewModel.state.value
+        assert(
+            currentState == RecipeScreenState(
+                recipes = DummyContent.getDomainRecipes(),
+                isLoading = false,
+                error = null
+            )
+        )
+    }
+
     private fun getViewModel(): RecipesViewModel {
 
-        val recipesRepository = RecipesRepository(FakeApiService(), FakeRoomDao())
+        val recipesRepository = RecipesRepository(FakeApiService(), FakeRoomDao(), dispatcher)
         val getSortedRecipesUseCase = GetSortedRecipesUseCase(recipesRepository)
         val getInitialRecipesUseCase = GetInitialRecipesUseCase(recipesRepository, getSortedRecipesUseCase)
         val toggleRecipesUseCase = ToggleFavoriteRecipeUseCase(recipesRepository, getSortedRecipesUseCase)

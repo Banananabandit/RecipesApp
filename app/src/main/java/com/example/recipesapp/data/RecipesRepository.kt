@@ -1,12 +1,14 @@
 package com.example.recipesapp.data
 
 import com.example.recipesapp.RecipesApplication
+import com.example.recipesapp.data.di.IODispatcher
 import com.example.recipesapp.data.local.LocalRecipe
 import com.example.recipesapp.data.local.PartialLocalRecipe
 import com.example.recipesapp.data.local.RecipesDao
 import com.example.recipesapp.data.local.RecipesDb
 import com.example.recipesapp.data.remote.RecipesApiService
 import com.example.recipesapp.domain.Recipe
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import retrofit2.HttpException
@@ -20,25 +22,19 @@ import javax.inject.Singleton
 @Singleton
 class RecipesRepository @Inject constructor(
     private val restInterface: RecipesApiService,
-    private val recipesDao: RecipesDao
+    private val recipesDao: RecipesDao,
+    @IODispatcher private val dispatcher: CoroutineDispatcher
 ) {
-//    private var restInterface: RecipesApiService =
-//        Retrofit.Builder()
-//            .addConverterFactory(GsonConverterFactory.create())
-//            .baseUrl("https://recipesapp-7cae7-default-rtdb.firebaseio.com/")
-//            .build()
-//            .create(RecipesApiService::class.java)
-//    private var recipesDao= RecipesDb.getDaoInstance(RecipesApplication.getAppContext())
 
     suspend fun getRecipes(): List<Recipe> {
-        return withContext(Dispatchers.IO) {
+        return withContext(dispatcher) {
             return@withContext recipesDao.getAll().map {
                 Recipe(it.id, it.title, it.description, it.isFavourite)
             }
         }
     }
     suspend fun loadRecipes() {
-        return withContext(Dispatchers.IO) {
+        return withContext(dispatcher) {
             try {
                 refreshCache()
             } catch (e: Exception) {
@@ -75,7 +71,7 @@ class RecipesRepository @Inject constructor(
     }
 
     suspend fun toggleFavoriteRecipe(id: Int, value: Boolean) =
-        withContext(Dispatchers.IO) {
+        withContext(dispatcher) {
             recipesDao.update(
                 PartialLocalRecipe(
                 id = id,
