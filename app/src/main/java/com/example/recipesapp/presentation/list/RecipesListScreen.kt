@@ -7,9 +7,10 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
@@ -26,16 +27,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.recipesapp.domain.Recipe
 import com.example.recipesapp.presentation.Description
 import com.example.recipesapp.ui.theme.RecipesAppTheme
-import com.google.android.material.progressindicator.CircularProgressIndicator
 
 @Composable
 fun RecipesListScreen(
@@ -74,7 +72,8 @@ fun RecipesListScreen(
 @Composable
 fun RecipeListItem(item: Recipe,
                    onFavoriteClick: (id: Int, oldValue: Boolean) -> Unit,
-                   onItemClick: (id: Int) -> Unit) {
+                   onItemClick: (id: Int) -> Unit)
+{
     val icon = if (item.isFavourite)
         Icons.Filled.Favorite
     else
@@ -83,19 +82,27 @@ fun RecipeListItem(item: Recipe,
     Card(elevation = CardDefaults.cardElevation(),
         modifier = Modifier
             .padding(8.dp)
-            .wrapContentHeight()
+            .height(96.dp)
             .clickable { onItemClick(item.id) })
     {
         Row(verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.padding(8.dp)) {
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(8.dp)) {
             RecipeIcon(
                 Icons.Filled.Delete,
-                Modifier.weight(0.15f))
+                Modifier
+                    .padding(end = 8.dp)
+                    .weight(0.25f))
             RecipeDetails(
                 item.title,
                 item.description,
-                Modifier.weight(0.7f))
-            RecipeIcon(icon, Modifier.weight(0.15f)) {
+                Modifier.weight(0.6f)
+            )
+            Spacer(Modifier.weight(0.075f))
+            RecipeIcon(icon, Modifier
+                .align(Alignment.Top)
+                .weight(0.075f)) {
                 onFavoriteClick(item.id, item.isFavourite)
             }
         }
@@ -107,8 +114,7 @@ fun RecipeListItem(item: Recipe,
 fun RecipeDetails(
     name: String,
     description: String,
-    modifier: Modifier,
-    horizontalAlignment: Alignment.Horizontal = Alignment.Start
+    modifier: Modifier
 ) {
     Column(modifier = modifier) {
         Text(text = name,
@@ -123,7 +129,6 @@ fun RecipeIcon(icon: ImageVector, modifier: Modifier, onClick: () -> Unit = {}) 
     Image(imageVector = icon,
         contentDescription = "Recipe icon",
         modifier = modifier
-            .padding(8.dp)
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null

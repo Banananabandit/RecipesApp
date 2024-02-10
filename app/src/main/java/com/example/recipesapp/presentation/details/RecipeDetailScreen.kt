@@ -30,10 +30,10 @@ fun RecipeDetailScreen() {
                 icon = Icons.Filled.Delete, 
                 modifier = Modifier.padding(top = 32.dp, bottom = 32.dp))
             RecipeDetails(
-                name = item.title, 
-                description = item.description, 
-                modifier = Modifier.padding(bottom = 32.dp),
-                Alignment.CenterHorizontally)
+                name = item.title,
+                description = item.description,
+                modifier = Modifier.padding(bottom = 32.dp)
+            )
             Text(text = "List of ingredients will go here")
         }
     }
